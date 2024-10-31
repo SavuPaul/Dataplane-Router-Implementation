@@ -1,0 +1,29 @@
+README - Tema1 - Protocoale de Comuncatie - Dataplane Router Implementation
+
+TASK1: Procesul de dirijare
+
+Implementarea pentru acest task este luata din laboratorul 4.
+
+Dupa citirea datelor din fisiere, se asteapta primirea unui pachet. Mai intai se verifica daca protocolul folosit 
+este IPv4. In caz contrar, se da drop la pachet. Daca este de tip IPv4, se recalculeaza checksum-ul pentru a
+verifica corectitudinea datelor primite. Daca checksum-ul recalculat este diferit de cel vechi, atunci se da drop
+la pachet intrucat contine date eronate. In cazul in care toate datele sunt corect primite, trebuie sa se gaseasca
+urmatorul hop pana la destinatie (cu functia get_best_route (o abordare mai ineficienta din cauza cautarii liniare),
+sau cu get_best_route_trie (varianta mai eficienta de cautare)). Functiile de rutare returneaza o variabila care
+contine datele de interes pentru a transmite pachetul mai departe (next_hop si interface). Daca nu s-a gasit o ruta,
+se da drop la pachet. Apoi, verificam TTL-ul pachetului. Daca acesta este 0, se da, de asemenea, drop. Altfel, se
+decrementeaza valoarea ttl-ului si se recalculeaza checksum-ul. Ulterior, se schimba si adresele MAC din cadrul 
+header-ului ethernet, adresa sursa devenind adresa curenta unde se afla pachetul, iar adresa destinatie devenind
+next_hop-ul. Dupa acest proces, pachetul este trimis mai departe, unde se reia tot procesul prezentat anterior.
+
+
+TASK2: Longest Prefix Match eficient
+
+Pentru eficientizarea algoritmului LPM, am creat un arbore binar unde fiecare nod are 2 copii, cu valorile 1 sau 0,
+corespunzatoare bitilor din adresa prefixului din tabela de rutare.
+
+Se creeaza arborele unde este adaugat fiecare prefix din tabela de rutare, dar dimensiunile prefixurilor sunt scalate 
+(micsorate) la dimensiunea mastii intrucat bitii ramasi nu ne mai intereseaza pentru a da match. Cum fiecare prefix este
+introdus in arbore, trebuie doar sa iteram prin arbore pana cand gasim cel mai lung prefix pentru IP_DEST. Informatia
+necesara pentru interfata si next_hop este stocata in frunzele arborelui, astfel ca, in momentul in care s-a dat match,
+ne vom afla mereu intr-un nod frunza din arbore, de unde putem furniza informatia necesara.
